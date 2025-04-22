@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: profile-api
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        timezone:
+          default_storage: NORMALIZE
+
+  datasource:
+    driverClass: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://localhost:3306/test
+    username: root
+    password: 123456
+
+server:
+  port: 8080
+  servlet:
+    encoding:
+      force: true
+      force-response: true
+      charset: UTF-8
