@@ -1,6 +1,9 @@
 spring:
   application:
     name: profile-api
+  config:
+    activate:
+      on-profile: local
 
   jpa:
     hibernate:
@@ -13,8 +16,8 @@ spring:
   datasource:
     driverClass: org.mariadb.jdbc.Driver
     url: jdbc:mariadb://localhost:3306/test
-    username: root
-    password: 123456
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
 server:
   port: 8080
@@ -23,3 +26,43 @@ server:
       force: true
       force-response: true
       charset: UTF-8
+
+logging:
+  level:
+    org.springframework: DEBUG
+  include-application-name:
+
+---
+spring:
+  application:
+    name: profile-api
+  config:
+    activate:
+      on-profile: dev
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        timezone:
+          default_storage: NORMALIZE
+
+  datasource:
+    driverClass: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://217.142.149.49:3306/link
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+server:
+  port: 8080
+  servlet:
+    encoding:
+      force: true
+      force-response: true
+      charset: UTF-8
+
+logging:
+  level:
+    org.springframework: DEBUG
+  include-application-name:
