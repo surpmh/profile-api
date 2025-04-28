@@ -1,0 +1,63 @@
+name: CI/CD via GHCR
+
+on:
+  push:
+    branches: [ dev ]
+
+jobs:
+  build-and-push:
+    name: Build & Push to GHCR
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout 코드
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build JAR
+        run: ./gradlew bootJar --no-daemon
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_PAT }}
+
+      - name: Build & Push Docker Image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/profile-api:latest
+
+  deploy:
+    name: Deploy to Remote Server
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH & Pull Image
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.SERVER_SSH_HOST }}
+          username: ${{ secrets.SERVER_SSH_USER }}
+          key: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
+          script: |
+            # GHCR에서 이미지 풀 (public이면 인증 불필요)
+            docker pull ghcr.io/${{ github.repository_owner }}/profile-api:latest
+            # 기존 컨테이너 중지/삭제
+            docker rm -f profile-api || true
+            # 새 컨테이너 실행
+            docker run -d \
+              --name profile-api \
+              -p 8080:8080 \
+              --restart unless-stopped \
+              -e SPRING_PROFILES_ACTIVE=dev \
+              ghcr.io/${{ github.repository_owner }}/profile-api:latest
