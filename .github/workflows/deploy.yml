@@ -68,6 +68,10 @@ jobs:
             docker run -d \
               --name profile-api \
               -p 8080:8080 \
-              --restart unless-stopped \
               -e SPRING_PROFILES_ACTIVE=dev \
+              -e DEV_DB_URL=${{ secrets.DEV_DB_URL }} \
+              -e DEV_DB_PORT=${{ secrets.DEV_DB_PORT }} \
+              -e DEV_DB_NAME=${{ secrets.DEV_DB_NAME }} \
+              -e DEV_DB_USERNAME=${{ secrets.DEV_DB_USERNAME }} \
+              -e DEV_DB_PASSWORD=${{ secrets.DEV_DB_PASSWORD }} \
               ghcr.io/surpmh/profile-api:latest

@@ -11,6 +11,7 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 COPY --from=builder /app/build/libs/profile-api-*.jar app.jar
+COPY src/main/resources/keystore.p12 /app/keystore.p12
 
 ENV PROFILE="dev"
 
